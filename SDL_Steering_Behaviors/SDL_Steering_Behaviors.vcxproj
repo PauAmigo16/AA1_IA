@@ -139,6 +139,7 @@
     <ClInclude Include="SceneSeek.h" />
     <ClInclude Include="SDL_SimpleApp.h" />
     <ClInclude Include="SteeringBehavior.h" />
+    <ClInclude Include="SteeringBehaviour.h" />
     <ClInclude Include="utils.h" />
     <ClInclude Include="Vector2D.h" />
   </ItemGroup>
@@ -149,6 +150,7 @@
     <ClCompile Include="SceneSeek.cpp" />
     <ClCompile Include="SDL_SimpleApp.cpp" />
     <ClCompile Include="SteeringBehavior.cpp" />
+    <ClCompile Include="SteeringBehaviour.cpp" />
     <ClCompile Include="utils.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
