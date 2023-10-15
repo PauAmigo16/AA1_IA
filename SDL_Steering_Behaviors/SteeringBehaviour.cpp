@@ -24,7 +24,7 @@ Vector2D SteeringBehaviour::Arrive(Vector2D targetPos, Agent* agent, float slowi
 {
 	float distanceToTarget = Vector2D::Distance(targetPos, agent->getPosition());
 
-	if (distanceToTarget < slowingRadius) {
+	if (distanceToTarget < slowingRadius && distanceToTarget != 0.f) {
 		float factor = distanceToTarget / slowingRadius;
 		Vector2D desiredVel = agent->getPosition() - targetPos;
 		desiredVel.Normalize();
@@ -33,44 +33,51 @@ Vector2D SteeringBehaviour::Arrive(Vector2D targetPos, Agent* agent, float slowi
 		steeringForce /= agent->getMaxVelocity() * factor;
 		return steeringForce * agent->getMaxForce();
 	}
-	
-return Seek(targetPos, agent);
+	return Seek(targetPos, agent);
 }
 
 Vector2D SteeringBehaviour::Pursue(Vector2D targetPos, Vector2D targetVel, Agent* agent)
 {
-	float t = Vector2D::Distance(targetPos, agent->getPosition()) / agent->getVelocity().Length();
-	Vector2D predictedTarget = targetPos + targetVel * t;
-	Vector2D sb= Seek(predictedTarget, agent);
-	return sb;
+	if (agent->getVelocity().Length() != 0) {
+		float t = Vector2D::Distance(targetPos, agent->getPosition()) / agent->getVelocity().Length();
+		Vector2D predictedTarget = targetPos + targetVel * t;
+		return Seek(predictedTarget, agent);
+	}
+	return Seek(targetPos, agent);
 }
 
 Vector2D SteeringBehaviour::Evade(Vector2D targetPos, Vector2D targetVel, Agent* agent)
 {
-	float t = Vector2D::Distance(targetPos, agent->getPosition()) / agent->getVelocity().Length();
-	Vector2D predictedTarget = targetPos + targetVel * t;
-	return Flee(predictedTarget, agent);
+	if (agent->getVelocity().Length() != 0) {
+		float t = Vector2D::Distance(targetPos, agent->getPosition()) / agent->getVelocity().Length();
+		Vector2D predictedTarget = targetPos + targetVel * t;
+		return Flee(predictedTarget, agent);
+	}
+	return Flee(targetPos, agent);
 }
 
 Vector2D SteeringBehaviour::Wander(Vector2D circlecenter, float circleRadius, float wanderOffset, Agent* agent)
 {
-	//Update angle
-	float angle = atan2f(agent->getVelocity().x, agent->getVelocity().y) * (180.f * M_PI);
-
-	//Calculate Target Position
 	Vector2D target;
-	target.x = circlecenter.x + circleRadius * cos(angle);
-	target.y = circlecenter.y + circleRadius * sin(angle);
+	Vector2D dist = Vector2D::Distance(target, agent->getPosition());
+	float angle = rand() % 360;
 
-	//Seek target if further than wanderOffset from center
-	if (Vector2D::Distance(agent->getPosition(), circlecenter) < wanderOffset) {
-		return Flee(circlecenter, agent);
-	}
-	return Seek(target, agent);
+	circlecenter = agent->getPosition() + agent->getVelocity().Normalize() * wanderOffset;
 
+	target.x = circlecenter.x + wanderOffset * sin(angle);
+	target.y = circlecenter.y + wanderOffset * cos(angle);
+
+	agent->setTarget(target);
+	Vector2D desiredV = target - agent->getPosition();
+	desiredV = desiredV.Normalize();
+	desiredV *= agent->getMaxVelocity();
+	Vector2D steeringForce = desiredV - agent->getVelocity();
+	steeringForce /= agent->getMaxVelocity();
+	steeringForce *= agent->getMaxForce();;
+	return steeringForce;
 }
 
-Vector2D SteeringBehaviour::WeightedBlending(std::vector<STEERING_TYPE> behaviours, std::vector<float> weights, std::vector<Vector2D> targets, Agent* agent, float radius, Vector2D targetVel, float wanderOffset, float dt)
+Vector2D SteeringBehaviour::WeightedBlending(std::vector<STEERING_TYPE> behaviours, std::vector<float> weights, Vector2D targets, Agent* agent, float radius, Vector2D targetVel, float wanderOffset, float dt)
 {
 	Vector2D steeringForce;
 
@@ -80,22 +87,22 @@ Vector2D SteeringBehaviour::WeightedBlending(std::vector<STEERING_TYPE> behaviou
 		switch (behaviours[i])
 		{
 		case STEERING_TYPE::SEEK:
-			currentBehaviour = Seek(targets[i], agent);
+			currentBehaviour = Seek(targets, agent);
 			break;
 		case STEERING_TYPE::FLEE:
-			currentBehaviour = Flee(targets[i], agent);
+			currentBehaviour = Flee(targets, agent);
 			break;
 		case STEERING_TYPE::ARRIVE:
-			currentBehaviour = Arrive(targets[i], agent, radius);
+			currentBehaviour = Arrive(targets, agent, radius);
 			break;
 		case STEERING_TYPE::PURSUE:
-			currentBehaviour = Pursue(targets[i], targetVel, agent);
+			currentBehaviour = Pursue(targets, targetVel, agent);
 			break;
 		case STEERING_TYPE::EVADE:
-			currentBehaviour = Evade(targets[i], targetVel, agent);
+			currentBehaviour = Evade(targets, targetVel, agent);
 			break;
 		case STEERING_TYPE::WANDER:
-			currentBehaviour = Wander(targets[i], radius, wanderOffset, agent);
+			currentBehaviour = Wander(targets, radius, wanderOffset, agent);
 			break;
 		default:
 			break;
@@ -112,7 +119,7 @@ Vector2D SteeringBehaviour::WeightedBlending(std::vector<STEERING_TYPE> behaviou
 	return agent->getVelocity() + acceleration * dt;
 }
 
-Vector2D SteeringBehaviour::PrioritizedWeightedSum(std::vector<STEERING_TYPE> behaviours, std::vector<float> weights, std::vector<Vector2D> targets, Agent* agent, float radius, Vector2D targetVel, float wanderOffset, float dt)
+Vector2D SteeringBehaviour::PrioritizedWeightedSum(std::vector<STEERING_TYPE> behaviours, std::vector<float> weights, Vector2D targets, Agent* agent, float radius, Vector2D targetVel, float wanderOffset, float dt)
 {
 	int prioritizedSB = -1;//això ens dira si algun behaviour te prioritat
 	for (int i = 0; i < weights.size(); i++) {
@@ -123,22 +130,22 @@ Vector2D SteeringBehaviour::PrioritizedWeightedSum(std::vector<STEERING_TYPE> be
 		switch (behaviours[prioritizedSB])
 		{
 		case STEERING_TYPE::SEEK:
-			return Seek(targets[prioritizedSB], agent);
+			return Seek(targets, agent);
 			break;
 		case STEERING_TYPE::FLEE:
-			return Flee(targets[prioritizedSB], agent);
+			return Flee(targets, agent);
 			break;
 		case STEERING_TYPE::ARRIVE:
-			return Arrive(targets[prioritizedSB], agent, radius);
+			return Arrive(targets, agent, radius);
 			break;
 		case STEERING_TYPE::PURSUE:
-			return Pursue(targets[prioritizedSB], targetVel, agent);
+			return Pursue(targets, targetVel, agent);
 			break;
 		case STEERING_TYPE::EVADE:
-			return Evade(targets[prioritizedSB], targetVel, agent);
+			return Evade(targets, targetVel, agent);
 			break;
 		case STEERING_TYPE::WANDER:
-			return Wander(targets[prioritizedSB], radius, wanderOffset, agent);
+			return Wander(targets, radius, wanderOffset, agent);
 			break;
 		default:
 			break;
