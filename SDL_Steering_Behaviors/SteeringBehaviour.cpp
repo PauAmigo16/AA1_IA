@@ -54,7 +54,20 @@ Vector2D SteeringBehaviour::Evade(Vector2D targetPos, Vector2D targetVel, Agent*
 
 Vector2D SteeringBehaviour::Wander(Vector2D circlecenter, float circleRadius, float wanderOffset, Agent* agent)
 {
-	return NULL;
+	//Update angle
+	float angle = atan2f(agent->getVelocity().x, agent->getVelocity().y) * (180.f * M_PI);
+
+	//Calculate Target Position
+	Vector2D target;
+	target.x = circlecenter.x + circleRadius * cos(angle);
+	target.y = circlecenter.y + circleRadius * sin(angle);
+
+	//Seek target if further than wanderOffset from center
+	if (Vector2D::Distance(agent->getPosition(), circlecenter) < wanderOffset) {
+		return Flee(circlecenter, agent);
+	}
+	 return Seek(target, agent);
+
 }
 
 Vector2D SteeringBehaviour::WeightedBlending(std::vector<STEERING_TYPE> behaviours, std::vector<float> weights, std::vector<Vector2D> targets, Agent* agent, float radius, Vector2D targetVel, float wanderOffset, float dt)
