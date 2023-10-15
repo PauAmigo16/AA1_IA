@@ -105,11 +105,11 @@ Vector2D SteeringBehaviour::WeightedBlending(std::vector<STEERING_TYPE> behaviou
 
 	Vector2D acceleration = steeringForce / agent->getMass();
 	
-	agent->setVelocity(agent->getVelocity() + acceleration * dt);
-
 	if (agent->getVelocity().Length() > agent->getMaxVelocity()) {
-		agent->setVelocity(agent->getVelocity().Normalize() * agent->getMaxVelocity());
+		return agent->getVelocity().Normalize() * agent->getMaxVelocity();
 	}
+
+	return agent->getVelocity() + acceleration * dt;
 }
 
 Vector2D SteeringBehaviour::PrioritizedWeightedSum(std::vector<STEERING_TYPE> behaviours, std::vector<float> weights, std::vector<Vector2D> targets, Agent* agent, float radius, Vector2D targetVel, float wanderOffset, float dt)
