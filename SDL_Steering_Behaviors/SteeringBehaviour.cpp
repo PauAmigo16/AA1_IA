@@ -98,3 +98,28 @@ Vector2D SteeringBehaviour::WeightedBlending(std::vector<STEERING_TYPE> behaviou
 		agent->setVelocity(agent->getVelocity().Normalize() * agent->getMaxVelocity());
 	}
 }
+
+void SteeringBehaviour::Flocking(std::vector<Agent*> flock, float separationWeigth, float cohesionWeigth, float alignmentWeigth, Vector2D flockTarget, float dt)
+{
+	for (int i=0;i<flock.size();i++) 
+	{
+		Vector2D SteeringForce;
+		Vector2D separationForce;
+		Vector2D cohesionForce;
+		for (int j = 0; j < flock.size(); j++) {
+			if (i == j)
+				continue;
+			separationForce += Flee(flock[j]->getPosition(), flock[i]);
+			cohesionForce += Seek(flock[j]->getPosition(), flock[i]);
+		}
+		SteeringForce += Seek(flockTarget, flock[i])*alignmentWeigth + separationForce * separationWeigth + cohesionForce * cohesionWeigth;
+
+		Vector2D acceleration = SteeringForce / flock[i]->getMass();
+
+		flock[i]->setVelocity(flock[i]->getVelocity() + acceleration * dt);
+
+		if (flock[i]->getVelocity().Length() > flock[i]->getMaxVelocity()) {
+			flock[i]->setVelocity(flock[i]->getVelocity().Normalize() * flock[i]->getMaxVelocity());
+		}
+	}
+}
