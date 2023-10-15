@@ -1,0 +1,1 @@
+Per canviar el Steering Behaviors s'ha d'anar al update del agent i canviar manualment la funció. Disculpem la falta de SOLID :(
