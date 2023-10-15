@@ -54,5 +54,5 @@ Vector2D SteeringBehaviour::Evade(Vector2D targetPos, Vector2D targetVel, Agent 
 
 Vector2D SteeringBehaviour::Wander(Vector2D circlecenter, float circleRadius, float wanderOffset)
 {
-	
+	return NULL;
 }
