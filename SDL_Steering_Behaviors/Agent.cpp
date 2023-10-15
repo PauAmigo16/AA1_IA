@@ -102,7 +102,7 @@ void Agent::update(float dtime, SDL_Event *event)
 		break;
 	}
 
-	Vector2D steering_force = this->Behavior()->Seek(this, this->getTarget(), dtime);
+	Vector2D steering_force = this->Behaviour()->Flee(this->getTarget(),  this);
 
 	Vector2D acceleration = steering_force / mass;
 	velocity = velocity + acceleration * dtime;

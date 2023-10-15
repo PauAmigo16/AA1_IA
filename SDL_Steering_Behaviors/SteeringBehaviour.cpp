@@ -24,10 +24,7 @@ Vector2D SteeringBehaviour::Arrive(Vector2D targetPos, Agent* agent, float slowi
 {
 	float distanceToTarget = Vector2D::Distance(targetPos, agent->getPosition());
 
-	if (distanceToTarget > slowingRadius)
-		return Seek(targetPos, agent);
-	else
-	{
+	if (distanceToTarget < slowingRadius) {
 		float factor = distanceToTarget / slowingRadius;
 		Vector2D desiredVel = agent->getPosition() - targetPos;
 		desiredVel.Normalize();
@@ -36,13 +33,16 @@ Vector2D SteeringBehaviour::Arrive(Vector2D targetPos, Agent* agent, float slowi
 		steeringForce /= agent->getMaxVelocity() * factor;
 		return steeringForce * agent->getMaxForce();
 	}
+	
+return Seek(targetPos, agent);
 }
 
 Vector2D SteeringBehaviour::Pursue(Vector2D targetPos, Vector2D targetVel, Agent* agent)
 {
 	float t = Vector2D::Distance(targetPos, agent->getPosition()) / agent->getVelocity().Length();
 	Vector2D predictedTarget = targetPos + targetVel * t;
-	return Seek(predictedTarget, agent);
+	Vector2D sb= Seek(predictedTarget, agent);
+	return sb;
 }
 
 Vector2D SteeringBehaviour::Evade(Vector2D targetPos, Vector2D targetVel, Agent* agent)
@@ -66,7 +66,7 @@ Vector2D SteeringBehaviour::Wander(Vector2D circlecenter, float circleRadius, fl
 	if (Vector2D::Distance(agent->getPosition(), circlecenter) < wanderOffset) {
 		return Flee(circlecenter, agent);
 	}
-	 return Seek(target, agent);
+	return Seek(target, agent);
 
 }
 
@@ -74,7 +74,7 @@ Vector2D SteeringBehaviour::WeightedBlending(std::vector<STEERING_TYPE> behaviou
 {
 	Vector2D steeringForce;
 
-	for (int i=0; i<behaviours.size();i++)
+	for (int i = 0; i < behaviours.size(); i++)
 	{
 		Vector2D currentBehaviour;
 		switch (behaviours[i])
@@ -86,13 +86,13 @@ Vector2D SteeringBehaviour::WeightedBlending(std::vector<STEERING_TYPE> behaviou
 			currentBehaviour = Flee(targets[i], agent);
 			break;
 		case STEERING_TYPE::ARRIVE:
-			currentBehaviour = Arrive(targets[i],agent, radius);
+			currentBehaviour = Arrive(targets[i], agent, radius);
 			break;
 		case STEERING_TYPE::PURSUE:
-			currentBehaviour = Pursue(targets[i], targetVel,  agent);
+			currentBehaviour = Pursue(targets[i], targetVel, agent);
 			break;
 		case STEERING_TYPE::EVADE:
-			currentBehaviour = Evade(targets[i],targetVel, agent);
+			currentBehaviour = Evade(targets[i], targetVel, agent);
 			break;
 		case STEERING_TYPE::WANDER:
 			currentBehaviour = Wander(targets[i], radius, wanderOffset, agent);
@@ -104,7 +104,7 @@ Vector2D SteeringBehaviour::WeightedBlending(std::vector<STEERING_TYPE> behaviou
 	}
 
 	Vector2D acceleration = steeringForce / agent->getMass();
-	
+
 	if (agent->getVelocity().Length() > agent->getMaxVelocity()) {
 		return agent->getVelocity().Normalize() * agent->getMaxVelocity();
 	}
@@ -149,7 +149,7 @@ Vector2D SteeringBehaviour::PrioritizedWeightedSum(std::vector<STEERING_TYPE> be
 
 void SteeringBehaviour::Flocking(std::vector<Agent*> flock, float separationWeigth, float cohesionWeigth, float alignmentWeigth, Vector2D flockTarget, float dt)
 {
-	for (int i=0;i<flock.size();i++) 
+	for (int i = 0; i < flock.size(); i++)
 	{
 		Vector2D SteeringForce;
 		Vector2D separationForce;
@@ -160,7 +160,7 @@ void SteeringBehaviour::Flocking(std::vector<Agent*> flock, float separationWeig
 			separationForce += Flee(flock[j]->getPosition(), flock[i]);
 			cohesionForce += Seek(flock[j]->getPosition(), flock[i]);
 		}
-		SteeringForce += Seek(flockTarget, flock[i])*alignmentWeigth + separationForce * separationWeigth + cohesionForce * cohesionWeigth;
+		SteeringForce += Seek(flockTarget, flock[i]) * alignmentWeigth + separationForce * separationWeigth + cohesionForce * cohesionWeigth;
 
 		Vector2D acceleration = SteeringForce / flock[i]->getMass();
 

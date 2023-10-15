@@ -13,9 +13,9 @@
 class Agent
 {
 	friend class SteeringBehaviour;
-
+	
 private:
-	SteeringBehaviour *steering_behaviour;
+	SteeringBehaviour* steering_behaviour;
 	Vector2D position;
 	Vector2D velocity;
 	Vector2D target;
@@ -36,7 +36,7 @@ private:
 public:
 	Agent();
 	~Agent();
-	SteeringBehaviour *Behaviour();
+	SteeringBehaviour* Behaviour();
 	Vector2D getPosition();
 	Vector2D getTarget();
 	Vector2D getVelocity();
