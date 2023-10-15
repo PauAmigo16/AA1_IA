@@ -3,6 +3,8 @@
 #include "Agent.h"
 #include <vector>
 
+class Agent;
+
 enum class STEERING_TYPE 
 {
 	SEEK,
@@ -15,6 +17,7 @@ enum class STEERING_TYPE
 
 class SteeringBehaviour
 {
+
 public:
 	Vector2D Seek(Vector2D targetPos, Agent* agent);
 	Vector2D Flee(Vector2D targetPos, Agent* agent);
