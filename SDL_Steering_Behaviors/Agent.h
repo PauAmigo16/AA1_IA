@@ -7,6 +7,7 @@
 #include "Vector2D.h"
 #include "utils.h"
 #include "SteeringBehaviour.h"
+#include <map>
 
 
 class Agent

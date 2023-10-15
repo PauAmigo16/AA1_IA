@@ -99,6 +99,41 @@ Vector2D SteeringBehaviour::WeightedBlending(std::vector<STEERING_TYPE> behaviou
 	}
 }
 
+Vector2D SteeringBehaviour::PrioritizedWeightedSum(std::vector<STEERING_TYPE> behaviours, std::vector<float> weights, std::vector<Vector2D> targets, Agent* agent, float radius, Vector2D targetVel, float wanderOffset, float dt)
+{
+	int prioritizedSB = -1;//això ens dira si algun behaviour te prioritat
+	for (int i = 0; i < weights.size(); i++) {
+		if (weights[i] > 0.7) //considerem que mes de 0.7 de prioritat es una força significativa
+			prioritizedSB = i;
+	}
+	if (prioritizedSB >= 0) {
+		switch (behaviours[prioritizedSB])
+		{
+		case STEERING_TYPE::SEEK:
+			return Seek(targets[prioritizedSB], agent);
+			break;
+		case STEERING_TYPE::FLEE:
+			return Flee(targets[prioritizedSB], agent);
+			break;
+		case STEERING_TYPE::ARRIVE:
+			return Arrive(targets[prioritizedSB], agent, radius);
+			break;
+		case STEERING_TYPE::PURSUE:
+			return Pursue(targets[prioritizedSB], targetVel, agent);
+			break;
+		case STEERING_TYPE::EVADE:
+			return Evade(targets[prioritizedSB], targetVel, agent);
+			break;
+		case STEERING_TYPE::WANDER:
+			return Wander(targets[prioritizedSB], radius, wanderOffset, agent);
+			break;
+		default:
+			break;
+		}
+	}
+	return WeightedBlending(behaviours, weights, targets, agent, radius, targetVel, wanderOffset, dt);
+}
+
 void SteeringBehaviour::Flocking(std::vector<Agent*> flock, float separationWeigth, float cohesionWeigth, float alignmentWeigth, Vector2D flockTarget, float dt)
 {
 	for (int i=0;i<flock.size();i++) 
