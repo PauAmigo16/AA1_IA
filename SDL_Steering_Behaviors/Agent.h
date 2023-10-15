@@ -6,15 +6,15 @@
 #include "SDL_SimpleApp.h"
 #include "Vector2D.h"
 #include "utils.h"
-#include "SteeringBehavior.h"
+#include "SteeringBehaviour.h"
 
 
 class Agent
 {
-	friend class SteeringBehavior;
+	friend class SteeringBehaviour;
 
 private:
-	SteeringBehavior *steering_behavior;
+	SteeringBehaviour *steering_behaviour;
 	Vector2D position;
 	Vector2D velocity;
 	Vector2D target;
@@ -35,12 +35,13 @@ private:
 public:
 	Agent();
 	~Agent();
-	SteeringBehavior *Behavior();
+	SteeringBehaviour *Behaviour();
 	Vector2D getPosition();
 	Vector2D getTarget();
 	Vector2D getVelocity();
 	float getMaxVelocity();
 	float getMaxForce();
+	float getMass();
 	void setPosition(Vector2D position);
 	void setTarget(Vector2D target);
 	void setVelocity(Vector2D velocity);

@@ -134,28 +134,22 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Agent.h" />
-    <ClInclude Include="PriorityList.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="SceneFlee.h" />
     <ClInclude Include="SceneSeek.h" />
     <ClInclude Include="SDL_SimpleApp.h" />
-    <ClInclude Include="SteeringBehavior.h" />
     <ClInclude Include="SteeringBehaviour.h" />
     <ClInclude Include="utils.h" />
     <ClInclude Include="Vector2D.h" />
-    <ClInclude Include="WeightedBlending.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Agent.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="PriorityList.cpp" />
     <ClCompile Include="SceneFlee.cpp" />
     <ClCompile Include="SceneSeek.cpp" />
     <ClCompile Include="SDL_SimpleApp.cpp" />
-    <ClCompile Include="SteeringBehavior.cpp" />
     <ClCompile Include="SteeringBehaviour.cpp" />
     <ClCompile Include="utils.cpp" />
-    <ClCompile Include="WeightedBlending.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

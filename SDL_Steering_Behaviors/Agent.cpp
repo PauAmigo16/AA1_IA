@@ -16,20 +16,20 @@ Agent::Agent() : sprite_texture(0),
 	             sprite_h(0),
 	             draw_sprite(false)
 {
-	steering_behavior = new SteeringBehavior;
+	steering_behaviour = new SteeringBehaviour();
 }
 
 Agent::~Agent()
 {
 	if (sprite_texture)
 		SDL_DestroyTexture(sprite_texture);
-	if (steering_behavior)
-		delete (steering_behavior);
+	if (steering_behaviour)
+		delete (steering_behaviour);
 }
 
-SteeringBehavior * Agent::Behavior()
+SteeringBehaviour * Agent::Behaviour()
 {
-	return steering_behavior;
+	return steering_behaviour;
 }
 
 Vector2D Agent::getPosition()
@@ -55,6 +55,11 @@ float Agent::getMaxVelocity()
 float Agent::getMaxForce()
 {
 	return max_force;
+}
+
+float Agent::getMass()
+{
+	return mass;
 }
 
 void Agent::setPosition(Vector2D _position)
